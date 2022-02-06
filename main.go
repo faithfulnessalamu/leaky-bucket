@@ -57,7 +57,10 @@ func main() {
 
 //getHandler returns the right handler for the mode
 func getHandler(mode string) http.Handler {
-	panic("Not Implemented")
+	if mode == AlgoModeMeter {
+		return handleAsAMeter()
+	}
+	panic("Queue Not Implemented")
 }
 
 //getMode reads the algorithm type to use from the environment.
