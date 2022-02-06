@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -57,7 +58,7 @@ func main() {
 
 //getHandler returns the right handler for the mode
 func getHandler(mode string) http.Handler {
-	if mode == AlgoModeMeter {
+	if strings.ToUpper(mode) == AlgoModeMeter {
 		return handleAsAMeter()
 	}
 	panic("Queue Not Implemented")
