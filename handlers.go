@@ -9,7 +9,7 @@ import (
 
 const (
 	RequestsCap = 5 //number at which we start dropping requests
-	LeakRate    = 1 * time.Second
+	LeakRate    = 3 * time.Second
 )
 
 //handleAsAMeter implements Leaky Bucket as a Meter.
@@ -26,6 +26,7 @@ func handleAsAMeter() http.HandlerFunc {
 		for range ticker.C {
 			mu.Lock()
 			if meter == 0 {
+				mu.Unlock()
 				continue
 			}
 			meter--
