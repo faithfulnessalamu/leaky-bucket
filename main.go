@@ -36,12 +36,12 @@ func main() {
 	go func() {
 		log.Printf("Starting server on %q", srv.Addr)
 		err := srv.ListenAndServe()
-		if err != nil {
+		if err != nil && err != http.ErrServerClosed {
 			errChan <- err
 		}
 	}()
 
-	sigint := make(chan os.Signal)
+	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, syscall.SIGINT)
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
@@ -50,8 +50,10 @@ func main() {
 		case <-sigint:
 			log.Println("Shutting down...")
 			srv.Shutdown(shutdownCtx)
+			return
 		case err := <-errChan:
 			log.Printf("An error occurred: %v\n", err)
+			return
 		}
 	}
 }
@@ -67,7 +69,7 @@ func getHandler(mode string) http.Handler {
 //getMode reads the algorithm type to use from the environment.
 //Could be "METER" or "QUEUE"
 func getMode() string {
-	if mode, ok := os.LookupEnv(AlgoModeEnvKey); ok {
+	if mode, ok := os.LookupEnv(strings.ToLower(AlgoModeEnvKey)); ok {
 		return mode
 	}
 	panic(fmt.Sprintf("%q not found in environment", AlgoModeEnvKey))
